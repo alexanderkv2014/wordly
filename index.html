@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1">
+<title>Wordly — карточки</title><meta name="theme-color" content="#5962f4"><link rel="manifest" href="manifest.json"><link rel="apple-touch-icon" href="assets/icons/icon-192.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Wordly"><link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app">
+<section id="screen-home" class="screen active">
+<header class="topbar"><div><div class="eyebrow">WORDLY</div><h1>Мой набор</h1></div><button class="circle-btn" data-screen="screen-settings">⋯</button></header>
+<div class="set-list">
+<button class="set-card" data-screen="screen-cards"><span class="set-icon">▣</span><span><b>Карточки</b><small>Свайп влево / вправо</small></span><span class="chev">›</span></button>
+<button class="set-card" data-screen="screen-learn"><span class="set-icon">☷</span><span><b>Заучивание</b><small>Пошаговое изучение слов</small></span><span class="chev">›</span></button>
+<button class="set-card" data-screen="screen-test"><span class="set-icon">⁙</span><span><b>Тест</b><small>Проверка знаний</small></span><span class="chev">›</span></button>
+</div>
+<button class="big-add" data-screen="screen-add">＋ Добавить слово</button>
+</section>
+
+<section id="screen-cards" class="screen"><header class="page-head"><button class="back-btn" data-screen="screen-home">‹</button><div><div class="eyebrow">НАБОР</div><h1>Карточки</h1></div><button class="head-btn" data-screen="screen-add">＋</button></header>
+<div class="search"><span>⌕</span><input id="search-input" placeholder="Найти слово или перевод"></div>
+<div class="filter-row"><button class="filter active">Все <i id="all-count">0</i></button><button class="filter">К изучению <i id="learn-count">0</i></button><button class="filter">Выучено <i id="mastered-count">0</i></button></div>
+<div id="cards-list" class="cards-list"></div></section>
+
+<section id="screen-learn" class="screen"><header class="page-head"><button class="back-btn" data-screen="screen-home">‹</button><div><div class="eyebrow">ЗАУЧИВАНИЕ</div><h1>Изучение</h1></div><button class="head-btn" data-screen="screen-settings">⚙</button></header>
+<div class="progress-top"><span id="learn-progress-label">1 / 10</span><div><span id="learn-progress-bar"></span></div></div>
+<div class="study-card" id="study-card"><div class="study-word" id="learn-word">apple</div><div class="study-hint" id="learn-hint">Нажмите, чтобы показать перевод</div><div class="study-answer hidden" id="learn-answer"><strong id="learn-translation">яблоко</strong><p id="learn-example">I eat an apple every day.</p><button id="learn-speak" class="sound-btn">◖ Звук</button></div></div>
+<div class="swipe-hint">← Не знаю &nbsp;&nbsp;&nbsp; Знаю →</div><div class="review-actions"><button class="review no" id="learn-no">Не знаю</button><button class="review yes" id="learn-yes">Знаю</button></div></section>
+
+<section id="screen-test" class="screen"><header class="page-head"><button class="back-btn" data-screen="screen-home">‹</button><div><div class="eyebrow">ПРОВЕРКА</div><h1>Тест</h1></div><button class="head-btn" data-screen="screen-settings">⚙</button></header>
+<div class="progress-top"><span id="test-label">1 / 10</span><div><span id="test-bar"></span></div></div>
+<div class="test-card"><p>Напишите перевод слова</p><strong id="test-word">important</strong><input id="test-answer" placeholder="Введите перевод" autocomplete="off"><button class="big-add" id="test-check">Проверить</button><div id="test-result" class="test-result"></div></div></section>
+
+<section id="screen-detail" class="screen"><header class="page-head"><button class="back-btn" data-screen="screen-cards">‹</button><div><div class="eyebrow">КАРТОЧКА</div><h1>Слово</h1></div><div><button class="head-btn" id="detail-edit">✎</button></div></header><div id="detail-content"></div></section>
+
+<section id="screen-add" class="screen"><header class="page-head"><button class="back-btn" data-screen="screen-home">‹</button><div><div class="eyebrow">НОВАЯ КАРТОЧКА</div><h1>Добавить слово</h1></div><button class="head-btn" id="save-word">✓</button></header><form id="word-form" class="form"><label>Слово (английский)<input id="input-en" required placeholder="apple" autocomplete="off"></label><label>Перевод (русский)<input id="input-ru" required placeholder="яблоко" autocomplete="off"></label><label>Пример (необязательно)<input id="input-example" placeholder="I eat an apple every day."></label><label>Заметка (необязательно)<textarea id="input-note" placeholder="Дополнительная информация"></textarea></label><button class="big-add" type="submit">Сохранить карточку</button></form></section>
+
+<section id="screen-progress" class="screen"><header class="page-head"><button class="back-btn" data-screen="screen-home">‹</button><div><div class="eyebrow">СТАТИСТИКА</div><h1>Прогресс</h1></div><select id="period"><option>Последние 7 дней</option><option>Последние 30 дней</option></select></header><div class="summary"><div><small>Выучено</small><b id="p-mastered">0</b></div><div><small>К изучению</small><b id="p-learning">0</b></div><div><small>Всего слов</small><b id="p-total">0</b></div></div><h2>Динамика изучения</h2><div class="chart" id="chart"></div><h2>Уровни слов</h2><div id="levels"></div></section>
+
+<section id="screen-settings" class="screen"><header class="page-head"><button class="back-btn" data-screen="screen-home">‹</button><div><div class="eyebrow">ПРОФИЛЬ</div><h1>Настройки</h1></div></header><div class="profile"><div class="avatar">А</div><div><b>Мой профиль</b><small>Личный набор слов</small></div></div><div class="settings-list"><button><span>◐</span><b>Тема</b><small id="theme-label">Системная</small></button><button><span>文</span><b>Язык приложения</b><small>Русский</small></button><button id="export-btn"><span>↥</span><b>Экспорт набора</b><small>Сохранить слова</small></button><button id="import-btn"><span>↧</span><b>Импорт набора</b><small>Восстановить слова</small></button><button id="reset-btn"><span>⌫</span><b>Сбросить прогресс</b><small>Начать обучение заново</small></button><button><span>ⓘ</span><b>О приложении</b><small>Wordly v2</small></button></div><input type="file" id="import-file" accept="application/json" hidden>
+<div class="theme-panel"><button data-theme="system">Системная</button><button data-theme="light">Светлая</button><button data-theme="dark">Тёмная</button></div></section>
+
+<nav class="bottom-nav"><button data-screen="screen-home" class="nav active"><span>⌂</span><small>Главная</small></button><button data-screen="screen-cards" class="nav"><span>▣</span><small>Карточки</small></button><button class="nav plus" data-screen="screen-add">＋</button><button data-screen="screen-progress" class="nav"><span>▥</span><small>Прогресс</small></button><button data-screen="screen-settings" class="nav"><span>♙</span><small>Профиль</small></button></nav>
+</div>
+<script src="app.js"></script></body></html>
