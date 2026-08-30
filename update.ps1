@@ -1,3 +1,4 @@
+$OutputEncoding = [System.Text.Encoding]::UTF8
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 
 Write-Host "=== Запуск обновления сайта WORDLY ===" -ForegroundColor Cyan
@@ -15,7 +16,7 @@ git add .
 
 # 3. Создаем коммит с меткой времени
 $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm"
-$commitMessage = "Update grammar modules, tests and UTF-8 fixes ($timestamp)"
+$commitMessage = "Update site content ($timestamp)"
 
 Write-Host "2. Создание коммита: '$commitMessage'..." -ForegroundColor Green
 git commit -m "$commitMessage"
