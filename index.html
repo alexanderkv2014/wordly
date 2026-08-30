@@ -1,137 +1,115 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Wordly — Quizlet Alternative</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#4255ff">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Wordly</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="app-container">
-        
-        <!-- ЭКРАН 1: ГЛАВНАЯ (МОДУЛИ) -->
-        <section id="screen-home" class="screen active">
-            <header class="main-header">
-                <h2>Мои модули</h2>
-                <button id="btn-create-set" class="primary-icon-btn">+ Новый модуль</button>
-            </header>
-            <div id="sets-list" class="sets-grid">
-                <!-- Карточки модулей рендерятся тут -->
-            </div>
-        </section>
 
-        <!-- ЭКРАН 2: ПРОСМОТР МОДУЛЯ -->
-        <section id="screen-set-view" class="screen">
-            <header class="sub-header">
-                <button id="btn-back-to-home" class="back-btn">← Назад</button>
-                <h3 id="set-view-title">Название модуля</h3>
-            </header>
-            
-            <div class="set-preview-card">
-                <div id="mini-flashcard" class="flashcard">
-                    <div class="card-inner">
-                        <div class="card-front"><span id="mini-front-word">Word</span></div>
-                        <div class="card-back"><span id="mini-back-trans">Перевод</span></div>
-                    </div>
-                </div>
-            </div>
+  <!-- Вкладка: Главная -->
+  <section id="tab-home" class="tab-content active">
+    <header class="app-header">
+      <div class="search-bar">
+        <span class="search-icon">🔍</span>
+        <input type="text" placeholder="Поиск" id="home-search">
+      </div>
+      <div class="profile-avatar">A</div>
+    </header>
 
-            <button id="btn-start-learn" class="start-learn-btn">🎴 Начать заучивание</button>
+    <main class="content-scroll">
+      <section class="section">
+        <h2 class="section-title">Продолжить учебу</h2>
+        <div class="continue-carousel" id="continue-cards">
+          <!-- Динамические карточки -->
+        </div>
+      </section>
 
-            <div class="set-words-header">
-                <h4>Слова в модуле (<span id="set-words-count">0</span>)</h4>
-                <button id="btn-add-word-modal" class="small-add-btn">+ Добавить слово</button>
-            </div>
-            <div id="set-words-list" class="words-list"></div>
-        </section>
+      <section class="section">
+        <h2 class="section-title">Недавние</h2>
+        <div class="list-container" id="recent-list">
+          <!-- Список недавних модулей -->
+        </div>
+      </section>
+    </main>
+  </section>
 
-        <!-- ЭКРАН 3: ПОЛНОЭКРАННОЕ ОБУЧЕНИЕ -->
-        <section id="screen-learn" class="screen fullscreen-mode">
-            <header class="learn-header">
-                <button id="btn-close-learn" class="close-btn">✕</button>
-                <div id="learn-progress-bar"><div id="progress-fill"></div></div>
-                <span id="learn-counter">0 / 0</span>
-            </header>
+  <!-- Вкладка: Библиотека -->
+  <section id="tab-library" class="tab-content">
+    <header class="library-header">
+      <div class="header-top">
+        <h1>Ваша библиотека</h1>
+        <button class="icon-btn-add" id="lib-add-btn">+</button>
+      </div>
+      <div class="chip-group">
+        <button class="chip active" data-subtab="modules">Модули</button>
+        <button class="chip" data-subtab="folders">Папки</button>
+      </div>
+    </header>
 
-            <div class="card-container">
-                <div id="flashcard" class="flashcard">
-                    <div class="card-inner">
-                        <div class="card-front">
-                            <span class="card-word" id="card-front-word">Word</span>
-                            <span class="card-hint">Нажмите, чтобы перевернуть</span>
-                        </div>
-                        <div class="card-back">
-                            <span class="card-translation" id="card-back-translation">Перевод</span>
-                            <p class="card-example" id="card-back-example"></p>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <main class="content-scroll">
+      <div id="subtab-modules" class="subtab-content active">
+        <div class="time-group-title">На этой неделе</div>
+        <div class="list-container" id="library-modules-list">
+          <!-- Список модулей -->
+        </div>
+      </div>
 
-            <div class="controls-container">
-                <button id="btn-dont-know" class="action-btn dont-know">✕ Не знаю</button>
-                <button id="btn-know" class="action-btn know">✓ Знаю</button>
-            </div>
-        </section>
+      <div id="subtab-folders" class="subtab-content">
+        <div class="list-container" id="library-folders-list">
+          <!-- Список папок -->
+        </div>
+      </div>
+    </main>
+  </section>
 
-        <!-- ЭКРАН 4: НАСТРОЙКИ И ДАННЫЕ -->
-        <section id="screen-settings" class="screen">
-            <header class="main-header">
-                <h2>Настройки и Данные</h2>
-            </header>
-            <div class="settings-group">
-                <h3>Резервное копирование</h3>
-                <div class="settings-actions">
-                    <button id="btn-export" class="settings-btn">📤 Экспортировать JSON</button>
-                    <label class="settings-btn">
-                        📥 Импортировать JSON
-                        <input type="file" id="file-import" accept=".json" style="display:none;">
-                    </label>
-                </div>
-            </div>
-        </section>
+  <!-- Экран карточек (Режим заучивания) -->
+  <section id="screen-study" class="screen-full">
+    <header class="study-header">
+      <button class="btn-close" id="close-study">✕</button>
+      <span class="study-progress-text" id="study-counter">1 / 10</span>
+      <button class="btn-gear">⚙️</button>
+    </header>
 
-        <!-- Нижняя навигация -->
-        <nav class="bottom-nav">
-            <button class="nav-btn active" data-target="screen-home">
-                <span class="nav-icon">📖</span>
-                <span class="nav-label">Модули</span>
-            </button>
-            <button class="nav-btn" data-target="screen-settings">
-                <span class="nav-icon">⚙️</span>
-                <span class="nav-label">Настройки</span>
-            </button>
-        </nav>
+    <div class="study-body">
+      <div class="card-container" id="flashcard">
+        <div class="card-inner">
+          <div class="card-front">
+            <span class="card-term" id="card-term-text">Term</span>
+          </div>
+          <div class="card-back">
+            <span class="card-definition" id="card-def-text">Definition</span>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <!-- Модальное окно создания модуля -->
-    <dialog id="modal-create-set" class="modal">
-        <form id="form-create-set" method="dialog">
-            <h3>Новый модуль</h3>
-            <input type="text" id="input-set-title" placeholder="Название (например: Еда, Глаголы)" required>
-            <div class="modal-actions">
-                <button type="button" id="btn-cancel-set">Отмена</button>
-                <button type="submit" class="primary-btn">Создать</button>
-            </div>
-        </form>
-    </dialog>
+    <footer class="study-footer">
+      <p class="hint-text">Коснитесь карточки, чтобы перевернуть</p>
+      <div class="study-actions">
+        <button class="btn-know-bad" id="btn-know-bad">Еще изучаю</button>
+        <button class="btn-know-good" id="btn-know-good">Знаю</button>
+      </div>
+    </footer>
+  </section>
 
-    <!-- Модальное окно добавления слова -->
-    <dialog id="modal-add-word" class="modal">
-        <form id="form-add-word" method="dialog">
-            <h3>Добавить слово в модуль</h3>
-            <input type="text" id="input-word" placeholder="Слово на английском" required>
-            <input type="text" id="input-translation" placeholder="Перевод" required>
-            <input type="text" id="input-example" placeholder="Пример предложения (опционально)">
-            <div class="modal-actions">
-                <button type="button" id="btn-cancel-word">Отмена</button>
-                <button type="submit" class="primary-btn">Добавить</button>
-            </div>
-        </form>
-    </dialog>
+  <!-- Нижнее меню навигации -->
+  <nav class="bottom-nav">
+    <button class="nav-item active" data-tab="tab-home">
+      <span class="nav-icon">🏠</span>
+      <span class="nav-label">Главная</span>
+    </button>
+    <button class="nav-item" id="nav-create-btn">
+      <span class="nav-icon">➕</span>
+      <span class="nav-label">Создать</span>
+    </button>
+    <button class="nav-item" data-tab="tab-library">
+      <span class="nav-icon">📁</span>
+      <span class="nav-label">Библиотека</span>
+    </button>
+  </nav>
 
-    <script src="app.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>

@@ -1,281 +1,395 @@
 :root {
-    --quizlet-blue: #4255ff;
-    --quizlet-bg: #f6f7fb;
-    --card-bg: #ffffff;
-    --text-main: #282e3e;
-    --text-muted: #646f90;
-    --border-color: #d9e1ec;
-    --success: #22c55e;
-    --danger: #ff4757;
-    --radius: 16px;
+  --bg-color: #0a0e1a;
+  --surface-color: #121829;
+  --card-bg: #1a233d;
+  --primary-blue: #4255ff;
+  --primary-blue-hover: #3b4ce0;
+  --text-main: #ffffff;
+  --text-secondary: #93a1c0;
+  --border-color: #232d48;
+  --accent-green: #18ae79;
+  --accent-orange: #ff8c00;
 }
 
 * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {
-    background-color: var(--quizlet-bg);
-    color: var(--text-main);
-    display: flex;
-    justify-content: center;
-    height: 100vh;
-    overflow: hidden;
+  background-color: var(--bg-color);
+  color: var(--text-main);
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
-.app-container {
-    width: 100%;
-    max-width: 480px;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    background: #fff;
-    position: relative;
+/* Навигационные вкладки */
+.tab-content {
+  display: none;
+  flex: 1;
+  flex-direction: column;
+  overflow: hidden;
 }
 
-.screen {
-    position: absolute;
-    top: 0; left: 0; right: 0; bottom: 60px;
-    display: none;
-    flex-direction: column;
-    padding: 20px;
-    overflow-y: auto;
-    background: var(--quizlet-bg);
+.tab-content.active {
+  display: flex;
 }
 
-.screen.active { display: flex; }
-
-.screen.fullscreen-mode {
-    bottom: 0;
-    z-index: 100;
-    background: #fff;
+/* Сквозной скролл */
+.content-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  padding-bottom: 90px;
 }
 
-/* Headers */
-.main-header, .sub-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
+/* Шапка Главной */
+.app-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background-color: var(--bg-color);
 }
 
-.sub-header { justify-content: flex-start; gap: 16px; }
-
-.primary-icon-btn, .primary-btn {
-    background: var(--quizlet-blue);
-    color: #fff;
-    border: none;
-    padding: 10px 16px;
-    border-radius: 12px;
-    font-weight: 600;
-    cursor: pointer;
+.search-bar {
+  flex: 1;
+  background-color: var(--surface-color);
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  padding: 8px 14px;
 }
 
-.back-btn, .close-btn {
-    background: none;
-    border: none;
-    font-size: 16px;
-    font-weight: 600;
-    color: var(--quizlet-blue);
-    cursor: pointer;
+.search-bar input {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #fff;
+  margin-left: 8px;
+  width: 100%;
+  font-size: 15px;
 }
 
-/* Sets Grid */
-.sets-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
+.profile-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: var(--primary-blue);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
 }
 
-.set-card {
-    background: #fff;
-    padding: 18px;
-    border-radius: var(--radius);
-    border: 1px solid var(--border-color);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.03);
-    cursor: pointer;
+/* Секции */
+.section {
+  margin-bottom: 24px;
 }
 
-.set-card h3 { font-size: 18px; margin-bottom: 6px; }
-.set-card span { font-size: 13px; color: var(--text-muted); font-weight: 600; }
-
-/* Set View Screen */
-.set-preview-card {
-    height: 180px;
-    margin-bottom: 16px;
+.section-title {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 12px;
 }
 
-.start-learn-btn {
-    width: 100%;
-    padding: 16px;
-    background: var(--quizlet-blue);
-    color: #fff;
-    border: none;
-    border-radius: var(--radius);
-    font-size: 16px;
-    font-weight: 700;
-    margin-bottom: 24px;
-    cursor: pointer;
+/* Карусель карточек */
+.continue-carousel {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding-bottom: 8px;
 }
 
-.set-words-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 12px;
+.continue-card {
+  min-width: 85%;
+  background-color: var(--surface-color);
+  border-radius: 16px;
+  padding: 20px;
+  scroll-snap-align: start;
+  border: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 140px;
 }
 
-.small-add-btn {
-    background: none;
-    border: none;
-    color: var(--quizlet-blue);
-    font-weight: 700;
-    cursor: pointer;
+.continue-card .title {
+  font-size: 20px;
+  font-weight: bold;
 }
 
-/* Flashcards */
+.btn-primary-wide {
+  background-color: var(--primary-blue);
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  width: 100%;
+  cursor: pointer;
+}
+
+/* Элементы списка модулей */
+.list-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.module-item {
+  background-color: var(--surface-color);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  cursor: pointer;
+  border: 1px solid var(--border-color);
+}
+
+.module-icon {
+  width: 40px;
+  height: 40px;
+  background-color: #1e2942;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary-blue);
+}
+
+.module-info .title {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.module-info .subtitle {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+/* Шапка Библиотеки */
+.library-header {
+  padding: 16px;
+  background-color: var(--bg-color);
+}
+
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.icon-btn-add {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 28px;
+  cursor: pointer;
+}
+
+.chip-group {
+  display: flex;
+  gap: 8px;
+}
+
+.chip {
+  background-color: var(--surface-color);
+  color: var(--text-secondary);
+  border: none;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.chip.active {
+  background-color: #2b3859;
+  color: var(--text-main);
+}
+
+.subtab-content {
+  display: none;
+}
+
+.subtab-content.active {
+  display: block;
+}
+
+.time-group-title {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+}
+
+/* Экран изучения (3D Карточка) */
+.screen-full {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--bg-color);
+  z-index: 100;
+  display: none;
+  flex-direction: column;
+}
+
+.screen-full.active {
+  display: flex;
+}
+
+.study-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+}
+
+.btn-close, .btn-gear {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.study-body {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  perspective: 1000px;
+}
+
 .card-container {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    perspective: 1000px;
-}
-
-.flashcard {
-    width: 100%;
-    height: 100%;
-    position: relative;
-    border-radius: var(--radius);
-    cursor: pointer;
+  width: 100%;
+  max-width: 340px;
+  height: 380px;
+  cursor: pointer;
 }
 
 .card-inner {
-    width: 100%;
-    height: 100%;
-    position: relative;
-    transform-style: preserve-3d;
-    transition: transform 0.4s ease;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.06);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius);
+  position: relative;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  transition: transform 0.6s;
+  transform-style: preserve-3d;
 }
 
-.flashcard.flipped .card-inner { transform: rotateY(180deg); }
+.card-container.flipped .card-inner {
+  transform: rotateY(180deg);
+}
 
 .card-front, .card-back {
-    position: absolute;
-    width: 100%; height: 100%;
-    backface-visibility: hidden;
-    border-radius: var(--radius);
-    background: #fff;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-    text-align: center;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
 }
 
-.card-back { transform: rotateY(180deg); background: #f0f4ff; }
-.card-word { font-size: 30px; font-weight: 700; }
-.card-translation { font-size: 26px; font-weight: 700; color: var(--quizlet-blue); }
-
-/* Learn Screen Header & Controls */
-.learn-header {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    margin-bottom: 20px;
+.card-back {
+  transform: rotateY(180deg);
 }
 
-#learn-progress-bar {
-    flex: 1;
-    height: 8px;
-    background: #e2e8f0;
-    border-radius: 4px;
-    overflow: hidden;
+.card-term, .card-definition {
+  font-size: 24px;
+  font-weight: 600;
 }
 
-#progress-fill {
-    width: 0%;
-    height: 100%;
-    background: var(--quizlet-blue);
-    transition: width 0.3s ease;
+.study-footer {
+  padding: 20px;
+  text-align: center;
 }
 
-.controls-container {
-    display: flex;
-    gap: 16px;
-    margin-top: 20px;
+.hint-text {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-bottom: 16px;
 }
 
-.action-btn {
-    flex: 1;
-    padding: 16px;
-    border: none;
-    border-radius: var(--radius);
-    font-size: 16px;
-    font-weight: 700;
-    cursor: pointer;
+.study-actions {
+  display: flex;
+  gap: 12px;
 }
 
-.action-btn.dont-know { background: #ffe5e5; color: var(--danger); }
-.action-btn.know { background: #dcfce7; color: var(--success); }
-
-/* Words List */
-.words-list { display: flex; flex-direction: column; gap: 8px; }
-.word-item {
-    display: flex;
-    justify-content: space-between;
-    padding: 14px;
-    background: #fff;
-    border: 1px solid var(--border-color);
-    border-radius: 12px;
+.btn-know-bad {
+  flex: 1;
+  background-color: rgba(255, 140, 0, 0.15);
+  color: var(--accent-orange);
+  border: 1px solid var(--accent-orange);
+  padding: 14px;
+  border-radius: 12px;
+  font-weight: 600;
 }
 
-/* Modals & Nav */
-.modal {
-    margin: auto;
-    padding: 20px;
-    border-radius: var(--radius);
-    border: none;
-    width: 90%;
-    max-width: 400px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+.btn-know-good {
+  flex: 1;
+  background-color: rgba(24, 174, 121, 0.15);
+  color: var(--accent-green);
+  border: 1px solid var(--accent-green);
+  padding: 14px;
+  border-radius: 12px;
+  font-weight: 600;
 }
 
-.modal input {
-    width: 100%;
-    padding: 12px;
-    margin: 10px 0;
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-}
-
-.modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px; }
-
+/* Нижняя панель */
 .bottom-nav {
-    position: absolute;
-    bottom: 0; left: 0; right: 0;
-    height: 60px;
-    border-top: 1px solid var(--border-color);
-    background: #fff;
-    display: flex;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 65px;
+  background-color: var(--surface-color);
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  z-index: 10;
 }
 
-.nav-btn {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    background: none;
-    border: none;
-    color: var(--text-muted);
+.nav-item {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  width: 33%;
 }
 
-.nav-btn.active { color: var(--quizlet-blue); }
+.nav-item.active {
+  color: var(--text-main);
+}
+
+.nav-icon {
+  font-size: 18px;
+}
+
+.nav-label {
+  font-size: 11px;
+}
