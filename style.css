@@ -39,8 +39,8 @@ body {
     margin-bottom: 4px;
 }
 
-.brand-title h1 {
-    font-size: 32px;
+.brand-title h1, .app-header h2 {
+    font-size: 28px;
     font-weight: 800;
     color: #ffffff;
 }
@@ -61,7 +61,6 @@ body {
     cursor: pointer;
 }
 
-/* Кнопка "Назад" */
 .back-btn {
     background: none;
     border: none;
@@ -70,6 +69,20 @@ body {
     font-weight: 600;
     cursor: pointer;
     padding: 8px 0;
+}
+
+.add-btn {
+    background: #3b82f6;
+    border: none;
+    color: #fff;
+    font-size: 24px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 /* Списки и элементы меню */
@@ -107,25 +120,16 @@ body {
     flex-shrink: 0;
 }
 
-.icon-blue {
-    background-color: rgba(59, 130, 246, 0.15);
-}
+.icon-blue { background-color: rgba(59, 130, 246, 0.15); }
+.icon-purple { background-color: rgba(168, 85, 247, 0.15); }
 
-.icon-purple {
-    background-color: rgba(168, 85, 247, 0.15);
-}
-
-.menu-info {
-    flex-grow: 1;
-}
-
+.menu-info { flex-grow: 1; }
 .menu-info .title {
     font-size: 18px;
     font-weight: 700;
     color: #ffffff;
     margin-bottom: 2px;
 }
-
 .menu-info .subtitle {
     font-size: 13px;
     color: #8b92b0;
@@ -139,16 +143,79 @@ body {
     font-weight: bold;
 }
 
-/* Заглушка для экранов */
+/* Переключатели в библиотеке */
+.chips-container {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 16px;
+}
+
+.chip {
+    background: #161a29;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #8b92b0;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.chip.active {
+    background: #3b82f6;
+    color: #fff;
+    border-color: #3b82f6;
+}
+
+.subtab-content { display: none; }
+.subtab-content.active { display: block; }
+
+/* Карточка для изучения */
 .placeholder-card {
     background-color: #161a29;
-    padding: 24px;
+    padding: 30px 20px;
     border-radius: 20px;
     border: 1px solid rgba(255, 255, 255, 0.05);
     text-align: center;
     color: #8b92b0;
+    min-height: 220px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    perspective: 1000px;
+}
+
+.card-flip .card-inner {
+    width: 100%;
+    transition: transform 0.4s;
+    transform-style: preserve-3d;
+}
+
+.placeholder-card.flipped .card-front { display: none; }
+.placeholder-card:not(.flipped) .card-back { display: none; }
+
+.card-front h2, .card-back h2 {
+    font-size: 28px;
+    color: #fff;
+}
+
+.card-back h2 { color: #3b82f6; }
+
+.tap-hint {
+    font-size: 12px;
+    color: #475569;
+    margin-top: 12px;
+}
+
+.study-actions {
+    display: flex;
+    gap: 12px;
     margin-top: 20px;
 }
+
+.btn-bad { background-color: #20263b; flex: 1; text-align: center; }
+.btn-good { background-color: #3b82f6; flex: 1; text-align: center; }
 
 /* Тесты */
 .test-card {
@@ -156,7 +223,6 @@ body {
     padding: 24px 20px;
     border-radius: 20px;
     border: 1px solid rgba(255, 255, 255, 0.05);
-    margin-top: 10px;
 }
 
 .question-text {
@@ -182,12 +248,9 @@ body {
     font-weight: 600;
     text-align: left;
     cursor: pointer;
-    transition: background-color 0.2s ease;
 }
 
-.option-btn:active {
-    background-color: #3b82f6;
-}
+.option-btn:active { background-color: #3b82f6; }
 
 .test-feedback {
     margin-top: 18px;
@@ -196,10 +259,5 @@ body {
     min-height: 24px;
 }
 
-.test-feedback.success {
-    color: #10b981;
-}
-
-.test-feedback.error {
-    color: #ef4444;
-}
+.test-feedback.success { color: #10b981; }
+.test-feedback.error { color: #ef4444; }
