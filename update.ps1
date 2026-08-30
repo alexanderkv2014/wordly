@@ -1,4 +1,4 @@
-# update.ps1 — Скрипт автоматического обновления курса и тестов на GitHub
+[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 
 Write-Host "=== Запуск обновления сайта WORDLY ===" -ForegroundColor Cyan
 
