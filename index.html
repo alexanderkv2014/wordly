@@ -1,105 +1,117 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1">
-<title>Wordly — карточки</title>
-<meta name="theme-color" content="#5962f4">
-<link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" href="assets/icons/icon-192.png">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Wordly">
-<link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Wordly — Офлайн Карточки</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#4f46e5">
 </head>
 <body>
-<div id="app">
+    <div class="app-container">
+        <!-- Шапка -->
+        <header class="app-header">
+            <h1 id="header-title">Изучение</h1>
+            <div id="card-counter" class="card-counter">0 / 0</div>
+        </header>
 
-<section id="screen-home" class="screen active">
-  <header class="topbar">
-    <div><div class="eyebrow">WORDLY</div><h1>Мой набор</h1></div>
-    <button class="circle-btn" data-screen="screen-settings">⋯</button>
-  </header>
-  <div class="set-list">
-    <button class="set-card" data-screen="screen-cards"><span class="set-icon">▣</span><span><b>Карточки</b><small>Свайпайте и повторяйте</small></span><span class="chev">›</span></button>
-    <button class="set-card" data-screen="screen-learn"><span class="set-icon">☷</span><span><b>Заучивание</b><small>Пошаговое изучение слов</small></span><span class="chev">›</span></button>
-    <button class="set-card" data-screen="screen-test"><span class="set-icon">⁙</span><span><b>Тест</b><small>Проверка знаний</small></span><span class="chev">›</span></button>
-    <button class="set-card" data-screen="screen-packs"><span class="set-icon">▦</span><span><b>Готовые наборы</b><small>Слова по уровням A1–B2</small></span><span class="chev">›</span></button>
-    <button class="set-card" id="tile-favorites"><span class="set-icon">★</span><span><b>Избранное</b><small>Слова, отмеченные звездой</small></span><span class="chev">›</span></button>
-  </div>
-  <button class="big-add" data-screen="screen-add">＋ Добавить слово</button>
-</section>
+        <!-- Основной контент -->
+        <main class="app-content">
+            <!-- ЭКРАН 1: ОБУЧЕНИЕ (ИЗУЧЕНИЕ) -->
+            <section id="screen-learn" class="screen active">
+                <div class="card-container">
+                    <div id="flashcard" class="flashcard">
+                        <div class="card-inner">
+                            <div class="card-front">
+                                <span class="card-word" id="card-front-word">Загрузка...</span>
+                                <span class="card-hint">Нажмите, чтобы перевернуть</span>
+                            </div>
+                            <div class="card-back">
+                                <span class="card-translation" id="card-back-translation">...</span>
+                                <p class="card-example" id="card-back-example"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-<section id="screen-cards" class="screen">
-  <header class="page-head">
-    <button class="back-btn" data-screen="screen-home">‹</button>
-    <div><div class="eyebrow">НАБОР</div><h1>Карточки</h1></div>
-    <button class="head-btn" data-screen="screen-add">＋</button>
-  </header>
-  <div class="scope-toggle" id="cards-scope">
-    <button data-scope="all" class="active">Все слова</button>
-    <button data-scope="favorites">★ Избранное</button>
-  </div>
-  <div class="progress-top"><span id="cards-progress-label">1 / 10</span><div><span id="cards-progress-bar"></span></div></div>
-  <div class="study-card flashcard" id="cards-card">
-    <div class="swipe-label swipe-no" id="cards-swipe-no">НЕ ЗНАЮ</div>
-    <div class="swipe-label swipe-yes" id="cards-swipe-yes">ЗНАЮ</div>
-    <button class="fc-star" id="cards-star">☆</button>
-    <div class="study-word" id="cards-word">apple</div>
-    <div class="study-hint" id="cards-hint">Нажмите, чтобы показать перевод</div>
-    <div class="study-answer hidden" id="cards-answer"><strong id="cards-translation">яблоко</strong><p id="cards-example"></p><button id="cards-speak" class="sound-btn">◖ Звук</button></div>
-  </div>
-  <div class="review-actions"><button class="review no" id="cards-no">Не знаю</button><button class="review yes" id="cards-yes">Знаю</button></div>
-  <button class="text-action" id="open-library">☷ Открыть список слов</button>
-</section>
+                <div class="controls-container">
+                    <button id="btn-dont-know" class="action-btn dont-know">
+                        <span class="btn-icon">✕</span>
+                        <span>Не знаю</span>
+                    </button>
+                    <button id="btn-know" class="action-btn know">
+                        <span class="btn-icon">✓</span>
+                        <span>Знаю</span>
+                    </button>
+                </div>
+            </section>
 
-<section id="screen-library" class="screen">
-  <header class="page-head"><button class="back-btn" data-screen="screen-cards">‹</button><div><div class="eyebrow">НАБОР</div><h1>Все слова</h1></div><button class="head-btn" data-screen="screen-add">＋</button></header>
-  <div class="search"><span>⌕</span><input id="search-input" placeholder="Найти слово или перевод"></div>
-  <div class="filter-row"><button class="filter active" data-filter="all">Все <i id="all-count">0</i></button><button class="filter" data-filter="learning">К изучению <i id="learn-count">0</i></button><button class="filter" data-filter="mastered">Выучено <i id="mastered-count">0</i></button><button class="filter" data-filter="favorites">★ Избранное <i id="favorite-count">0</i></button></div>
-  <div id="cards-list" class="cards-list"></div>
-</section>
+            <!-- ЭКРАН 2: БИБЛИОТЕКА И ДОБАВЛЕНИЕ -->
+            <section id="screen-library" class="screen">
+                <div class="add-word-block">
+                    <h3>Добавить новое слово</h3>
+                    <form id="add-card-form" class="add-form">
+                        <input type="text" id="input-word" placeholder="Слово на английском (e.g. Apple)" required autocomplete="off">
+                        <input type="text" id="input-translation" placeholder="Перевод (e.g. Яблоко)" required autocomplete="off">
+                        <input type="text" id="input-example" placeholder="Пример (e.g. I eat an apple)" autocomplete="off">
+                        <button type="submit" class="submit-btn">Добавить в словарь</button>
+                    </form>
+                </div>
 
-<section id="screen-learn" class="screen">
-  <header class="page-head"><button class="back-btn" data-screen="screen-home">‹</button><div><div class="eyebrow">ЗАУЧИВАНИЕ</div><h1>Изучение</h1></div><button class="head-btn" data-screen="screen-settings">⚙</button></header>
-  <div class="progress-top"><span id="learn-progress-label">1 / 10</span><div><span id="learn-progress-bar"></span></div></div>
-  <div class="study-card flashcard" id="study-card">
-    <div class="swipe-label swipe-no" id="learn-swipe-no">НЕ ЗНАЮ</div>
-    <div class="swipe-label swipe-yes" id="learn-swipe-yes">ЗНАЮ</div>
-    <button class="fc-star" id="learn-star">☆</button>
-    <div class="study-word" id="learn-word">apple</div><div class="study-hint" id="learn-hint">Нажмите, чтобы показать перевод</div><div class="study-answer hidden" id="learn-answer"><strong id="learn-translation">яблоко</strong><p id="learn-example">I eat an apple every day.</p><button id="learn-speak" class="sound-btn">◖ Звук</button></div></div>
-  <div class="review-actions"><button class="review no" id="learn-no">Не знаю</button><button class="review yes" id="learn-yes">Знаю</button></div>
-</section>
+                <div class="library-block">
+                    <div class="library-header">
+                        <h3>Мои слова</h3>
+                        <input type="text" id="search-input" placeholder="Поиск по словам..." class="search-bar">
+                    </div>
+                    <div id="words-list" class="words-list">
+                        <!-- Карточки будут рендериться тут -->
+                    </div>
+                </div>
+            </section>
 
-<section id="screen-test" class="screen"><header class="page-head"><button class="back-btn" data-screen="screen-home">‹</button><div><div class="eyebrow">ПРОВЕРКА</div><h1>Тест</h1></div><button class="head-btn" data-screen="screen-settings">⚙</button></header>
-<div class="progress-top"><span id="test-label">1 / 10</span><div><span id="test-bar"></span></div></div>
-<div class="test-card"><p>Напишите перевод слова</p><strong id="test-word">important</strong><input id="test-answer" placeholder="Введите перевод" autocomplete="off"><button class="big-add" id="test-check">Проверить</button><div id="test-result" class="test-result"></div></div></section>
+            <!-- ЭКРАН 3: НАСТРОЙКИ И ДАННЫЕ -->
+            <section id="screen-settings" class="screen">
+                <div class="settings-group">
+                    <h3>Данные и Резервное копирование</h3>
+                    <p class="settings-desc">Сохраняйте карточки в файл для переноса на другое устройство или восстанавливайте из копии.</p>
+                    
+                    <div class="settings-actions">
+                        <button id="btn-export" class="settings-btn export">
+                            <span>📤 Экспортировать в JSON</span>
+                        </button>
+                        
+                        <label class="settings-btn import">
+                            <span>📥 Импортировать из JSON</span>
+                            <input type="file" id="file-import" accept=".json" style="display: none;">
+                        </label>
+                    </div>
+                </div>
 
-<section id="screen-detail" class="screen"><header class="page-head"><button class="back-btn" data-screen="screen-library">‹</button><div><div class="eyebrow">КАРТОЧКА</div><h1>Слово</h1></div><button class="head-btn" id="detail-edit">✎</button></header><div id="detail-content"></div></section>
+                <div class="settings-group danger-zone">
+                    <h3>Опасная зона</h3>
+                    <button id="btn-clear-data" class="danger-btn">Сбросить весь прогресс и слова</button>
+                </div>
+            </section>
+        </main>
 
-<section id="screen-add" class="screen"><header class="page-head"><button class="back-btn" data-screen="screen-home">‹</button><div><div class="eyebrow">НОВАЯ КАРТОЧКА</div><h1>Добавить слово</h1></div><button class="head-btn" id="save-word">✓</button></header><form id="word-form" class="form"><label>Слово (английский)<input id="input-en" required placeholder="apple" autocomplete="off"></label><label>Перевод (русский)<input id="input-ru" required placeholder="яблоко" autocomplete="off"></label><label>Пример (необязательно)<input id="input-example" placeholder="I eat an apple every day."></label><label>Заметка (необязательно)<textarea id="input-note" placeholder="Дополнительная информация"></textarea></label><button class="big-add" type="submit">Сохранить карточку</button></form></section>
+        <!-- Нижняя Навигация -->
+        <nav class="bottom-nav">
+            <button class="nav-btn active" data-target="screen-learn">
+                <span class="nav-icon">🎴</span>
+                <span class="nav-label">Карточки</span>
+            </button>
+            <button class="nav-btn" data-target="screen-library">
+                <span class="nav-icon">📚</span>
+                <span class="nav-label">Библиотека</span>
+            </button>
+            <button class="nav-btn" data-target="screen-settings">
+                <span class="nav-icon">⚙️</span>
+                <span class="nav-label">Настройки</span>
+            </button>
+        </nav>
+    </div>
 
-<section id="screen-progress" class="screen"><header class="page-head"><button class="back-btn" data-screen="screen-home">‹</button><div><div class="eyebrow">СТАТИСТИКА</div><h1>Прогресс</h1></div><select id="period"><option>Последние 7 дней</option><option>Последние 30 дней</option></select></header><div class="summary"><div><small>Выучено</small><b id="p-mastered">0</b></div><div><small>К изучению</small><b id="p-learning">0</b></div><div><small>Всего слов</small><b id="p-total">0</b></div></div><h2>Динамика изучения</h2><div class="chart" id="chart"></div><h2>Уровни слов</h2><div id="levels"></div></section>
-
-<section id="screen-settings" class="screen">
-  <header class="page-head settings-head"><div><div class="eyebrow">ПРОФИЛЬ</div><h1>Настройки</h1></div></header>
-  <div class="profile"><div class="avatar">А</div><div><b>Мой профиль</b><small>Личный набор слов</small></div></div>
-  <div class="settings-list">
-    <button id="theme-btn"><span>◐</span><div><b>Тема</b><small id="theme-label">Системная</small></div><em>›</em></button>
-    <button><span>文</span><div><b>Язык приложения</b><small>Русский</small></div><em>›</em></button>
-    <button id="reset-btn"><span>⌫</span><div><b>Сбросить прогресс</b><small>Начать обучение заново</small></div><em>›</em></button>
-    <button><span>ⓘ</span><div><b>О приложении</b><small>Wordly v2.1</small></div><em>›</em></button>
-  </div>
-  <div class="theme-panel"><button data-theme="system">Системная</button><button data-theme="light">Светлая</button><button data-theme="dark">Тёмная</button></div>
-</section>
-
-<section id="screen-packs" class="screen">
-  <header class="page-head"><button class="back-btn" data-screen="screen-home">‹</button><div><div class="eyebrow">ГОТОВЫЕ НАБОРЫ</div><h1>По уровням</h1></div><div style="width:44px"></div></header>
-  <div class="set-list" id="packs-list"></div>
-</section>
-
-<div class="modal hidden" id="data-modal"><div class="modal-backdrop"></div><div class="modal-sheet" id="modal-sheet"></div></div>
-
-<nav class="bottom-nav"><button data-screen="screen-home" class="nav active"><span>⌂</span><small>Главная</small></button><button data-screen="screen-cards" class="nav"><span>▣</span><small>Карточки</small></button><button class="nav plus" data-screen="screen-add">＋</button><button data-screen="screen-progress" class="nav"><span>▥</span><small>Прогресс</small></button><button data-screen="screen-settings" class="nav"><span>♙</span><small>Профиль</small></button></nav>
-</div>
-<script src="app.js"></script>
-</body></html>
+    <script src="app.js"></script>
+</body>
+</html>
