@@ -1,28 +1,28 @@
 $OutputEncoding = [System.Text.Encoding]::UTF8
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 
-Write-Host "=== Запуск обновления сайта WORDLY ===" -ForegroundColor Cyan
+Write-Host "=== Starting WORDLY Update ===" -ForegroundColor Cyan
 
-# 1. Проверяем статус Git
+# 1. Check Git status
 $status = git status --porcelain
 if (-not $status) {
-    Write-Host "Нет новых изменений для отправки." -ForegroundColor Yellow
+    Write-Host "No changes to commit." -ForegroundColor Yellow
     exit
 }
 
-# 2. Индексируем все измененные файлы
-Write-Host "1. Добавление файлов в индекс..." -ForegroundColor Green
+# 2. Add files to stage
+Write-Host "1. Adding files..." -ForegroundColor Green
 git add .
 
-# 3. Создаем коммит с меткой времени
+# 3. Create commit
 $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm"
 $commitMessage = "Update site content ($timestamp)"
 
-Write-Host "2. Создание коммита: '$commitMessage'..." -ForegroundColor Green
+Write-Host "2. Creating commit: '$commitMessage'..." -ForegroundColor Green
 git commit -m "$commitMessage"
 
-# 4. Отправляем изменения в ветку main
-Write-Host "3. Отправка изменений на GitHub Pages..." -ForegroundColor Green
+# 4. Push to main
+Write-Host "3. Pushing to GitHub Pages..." -ForegroundColor Green
 git push origin main
 
-Write-Host "=== Успешно! Обновления отправлены на сайт ===" -ForegroundColor Cyan
+Write-Host "=== SUCCESS! Site updated ===" -ForegroundColor Cyan
