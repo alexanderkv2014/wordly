@@ -1,95 +1,220 @@
-// Default Data Seed
-const DEFAULT_WORDS = [
-    { id: 1, word: 'apple', translation: 'яблоко', example: 'I eat a fresh apple.', errors: 0 },
-    { id: 2, word: 'application', translation: 'приложение', example: 'FastAPI is a web application framework.', errors: 0 },
-    { id: 3, word: 'dictionary', translation: 'словарь', example: 'Use a dictionary to check words.', errors: 0 }
+const DEFAULT_SETS = [
+    {
+        id: 1,
+        title: "Базовые фразы",
+        words: [
+            { id: 101, word: "apple", translation: "яблоко", example: "Fresh apple" },
+            { id: 102, word: "application", translation: "приложение", example: "Mobile app" }
+        ]
+    }
 ];
 
-class WordlyApp {
+class QuizletApp {
     constructor() {
-        this.words = JSON.parse(localStorage.getItem('wordly_words')) || DEFAULT_WORDS;
-        this.currentIndex = 0;
-        
+        this.sets = JSON.parse(localStorage.getItem('wordly_quizlet_sets')) || DEFAULT_SETS;
+        this.activeSet = null;
+        this.learnIndex = 0;
+
         this.initElements();
         this.initEvents();
-        this.initSwipe();
-        this.renderCurrentCard();
-        this.renderLibrary();
+        this.renderHomeSets();
     }
 
     initElements() {
-        // Screens & Nav
         this.screens = document.querySelectorAll('.screen');
         this.navBtns = document.querySelectorAll('.nav-btn');
-        this.headerTitle = document.getElementById('header-title');
-        this.cardCounter = document.getElementById('card-counter');
 
-        // Card Elements
+        // Modals
+        this.modalCreateSet = document.getElementById('modal-create-set');
+        this.modalAddWord = document.getElementById('modal-add-word');
+
+        // Cards & Learn
         this.flashcard = document.getElementById('flashcard');
-        this.cardFrontWord = document.getElementById('card-front-word');
-        this.cardBackTranslation = document.getElementById('card-back-translation');
-        this.cardBackExample = document.getElementById('card-back-example');
-
-        // Buttons
-        this.btnKnow = document.getElementById('btn-know');
-        this.btnDontKnow = document.getElementById('btn-dont-know');
-
-        // Library & Settings Forms
-        this.addForm = document.getElementById('add-card-form');
-        this.wordsList = document.getElementById('words-list');
-        this.searchInput = document.getElementById('search-input');
-        this.btnExport = document.getElementById('btn-export');
-        this.fileImport = document.getElementById('file-import');
-        this.btnClearData = document.getElementById('btn-clear-data');
+        this.miniCard = document.getElementById('mini-flashcard');
+        this.progressFill = document.getElementById('progress-fill');
+        this.learnCounter = document.getElementById('learn-counter');
     }
 
     initEvents() {
-        // Navigation Switcher
+        // Navigation
         this.navBtns.forEach(btn => {
             btn.addEventListener('click', () => {
-                const target = btn.dataset.target;
-                this.switchScreen(target, btn);
+                this.switchScreen(btn.dataset.target);
+                this.navBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
             });
         });
 
-        // Flip Card
-        this.flashcard.addEventListener('click', () => {
-            this.flashcard.classList.toggle('flipped');
+        // Open Create Set Modal
+        document.getElementById('btn-create-set').addEventListener('click', () => {
+            this.modalCreateSet.showModal();
         });
 
-        // Answer Actions
-        this.btnKnow.addEventListener('click', (e) => {
-            e.stopPropagation();
-            this.handleAnswer(true);
+        document.getElementById('btn-cancel-set').addEventListener('click', () => {
+            this.modalCreateSet.close();
         });
 
-        this.btnDontKnow.addEventListener('click', (e) => {
-            e.stopPropagation();
-            this.handleAnswer(false);
-        });
-
-        // Add New Word
-        this.addForm.addEventListener('submit', (e) => {
+        document.getElementById('form-create-set').addEventListener('submit', (e) => {
             e.preventDefault();
-            this.addNewWord();
+            this.createSet();
         });
 
-        // Search Filter
-        this.searchInput.addEventListener('input', (e) => {
-            this.renderLibrary(e.target.value);
+        // Open Add Word Modal
+        document.getElementById('btn-add-word-modal').addEventListener('click', () => {
+            this.modalAddWord.showModal();
         });
 
-        // Export/Import JSON UX
-        this.btnExport.addEventListener('click', () => this.exportData());
-        this.fileImport.addEventListener('change', (e) => this.importData(e));
-        this.btnClearData.addEventListener('click', () => this.clearAllData());
+        document.getElementById('btn-cancel-word').addEventListener('click', () => {
+            this.modalAddWord.close();
+        });
+
+        document.getElementById('form-add-word').addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.addWordToSet();
+        });
+
+        // Back to Home
+        document.getElementById('btn-back-to-home').addEventListener('click', () => {
+            this.switchScreen('screen-home');
+        });
+
+        // Start Learning
+        document.getElementById('btn-start-learn').addEventListener('click', () => {
+            if (this.activeSet.words.length === 0) return alert('Добавьте слова в модуль!');
+            this.learnIndex = 0;
+            this.switchScreen('screen-learn');
+            this.renderLearnCard();
+        });
+
+        document.getElementById('btn-close-learn').addEventListener('click', () => {
+            this.switchScreen('screen-set-view');
+        });
+
+        // Flip Cards
+        this.flashcard.addEventListener('click', () => this.flashcard.classList.toggle('flipped'));
+        this.miniCard.addEventListener('click', () => this.miniCard.classList.toggle('flipped'));
+
+        // Controls
+        document.getElementById('btn-know').addEventListener('click', () => this.handleAnswer(true));
+        document.getElementById('btn-dont-know').addEventListener('click', () => this.handleAnswer(false));
+
+        // Export/Import
+        document.getElementById('btn-export').addEventListener('click', () => this.exportJSON());
+        document.getElementById('file-import').addEventListener('change', (e) => this.importJSON(e));
+
+        this.initSwipe();
     }
 
-    // Touch & Swipe Logic
+    switchScreen(id) {
+        this.screens.forEach(s => s.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+    }
+
+    renderHomeSets() {
+        const list = document.getElementById('sets-list');
+        list.innerHTML = '';
+        this.sets.forEach(set => {
+            const card = document.createElement('div');
+            card.className = 'set-card';
+            card.innerHTML = `
+                <h3>${set.title}</h3>
+                <span>${set.words.length} слов</span>
+            `;
+            card.addEventListener('click', () => this.openSetView(set));
+            list.appendChild(card);
+        });
+    }
+
+    createSet() {
+        const titleInput = document.getElementById('input-set-title');
+        const newSet = {
+            id: Date.now(),
+            title: titleInput.value.trim(),
+            words: []
+        };
+        this.sets.push(newSet);
+        this.saveData();
+        titleInput.value = '';
+        this.modalCreateSet.close();
+        this.renderHomeSets();
+    }
+
+    openSetView(set) {
+        this.activeSet = set;
+        document.getElementById('set-view-title').textContent = set.title;
+        document.getElementById('set-words-count').textContent = set.words.length;
+
+        // Render Mini Card
+        if (set.words.length > 0) {
+            document.getElementById('mini-front-word').textContent = set.words[0].word;
+            document.getElementById('mini-back-trans').textContent = set.words[0].translation;
+        } else {
+            document.getElementById('mini-front-word').textContent = "Пусто";
+            document.getElementById('mini-back-trans').textContent = "Добавьте слова";
+        }
+
+        // Render Words List
+        const wordsList = document.getElementById('set-words-list');
+        wordsList.innerHTML = '';
+        set.words.forEach(w => {
+            const item = document.createElement('div');
+            item.className = 'word-item';
+            item.innerHTML = `<strong>${w.word}</strong><span>${w.translation}</span>`;
+            wordsList.appendChild(item);
+        });
+
+        this.switchScreen('screen-set-view');
+    }
+
+    addWordToSet() {
+        const wVal = document.getElementById('input-word').value.trim();
+        const tVal = document.getElementById('input-translation').value.trim();
+        const eVal = document.getElementById('input-example').value.trim();
+
+        this.activeSet.words.push({ id: Date.now(), word: wVal, translation: tVal, example: eVal });
+        this.saveData();
+        
+        document.getElementById('input-word').value = '';
+        document.getElementById('input-translation').value = '';
+        document.getElementById('input-example').value = '';
+        this.modalAddWord.close();
+
+        this.openSetView(this.activeSet);
+    }
+
+    renderLearnCard() {
+        const words = this.activeSet.words;
+        if (this.learnIndex >= words.length) {
+            alert('Сессия завершена!');
+            this.switchScreen('screen-set-view');
+            return;
+        }
+
+        const card = words[this.learnIndex];
+        this.flashcard.classList.remove('flipped');
+        document.getElementById('card-front-word').textContent = card.word;
+        document.getElementById('card-back-translation').textContent = card.translation;
+        document.getElementById('card-back-example').textContent = card.example ? `"${card.example}"` : '';
+
+        // Progress
+        const percent = ((this.learnIndex + 1) / words.length) * 100;
+        this.progressFill.style.width = `${percent}%`;
+        this.learnCounter.textContent = `${this.learnIndex + 1} / ${words.length}`;
+    }
+
+    handleAnswer(isKnown) {
+        if (!isKnown) {
+            // Переместить сложное слово через 2 позиции
+            const current = this.activeSet.words.splice(this.learnIndex, 1)[0];
+            this.activeSet.words.splice(Math.min(this.learnIndex + 2, this.activeSet.words.length), 0, current);
+        } else {
+            this.learnIndex++;
+        }
+        this.renderLearnCard();
+    }
+
     initSwipe() {
-        let startX = 0;
-        let currentX = 0;
-        let isSwiping = false;
+        let startX = 0, currentX = 0, isSwiping = false;
 
         this.flashcard.addEventListener('touchstart', (e) => {
             startX = e.touches[0].clientX;
@@ -108,181 +233,38 @@ class WordlyApp {
             isSwiping = false;
             this.flashcard.style.transition = 'transform 0.2s ease';
 
-            if (currentX > 90) {
-                // Swiped Right -> Know
-                this.handleAnswer(true);
-            } else if (currentX < -90) {
-                // Swiped Left -> Don't Know
-                this.handleAnswer(false);
-            } else {
-                // Reset Position
-                this.flashcard.style.transform = 'translateX(0) rotate(0)';
-            }
+            if (currentX > 90) this.handleAnswer(true);
+            else if (currentX < -90) this.handleAnswer(false);
+            else this.flashcard.style.transform = 'translateX(0) rotate(0)';
+            
             currentX = 0;
         });
     }
 
-    switchScreen(screenId, activeBtn) {
-        this.screens.forEach(s => s.classList.remove('active'));
-        this.navBtns.forEach(b => b.classList.remove('active'));
-
-        document.getElementById(screenId).classList.add('active');
-        activeBtn.classList.add('active');
-
-        const titles = {
-            'screen-learn': 'Изучение',
-            'screen-library': 'Библиотека',
-            'screen-settings': 'Настройки'
-        };
-        this.headerTitle.textContent = titles[screenId];
-    }
-
-    renderCurrentCard() {
-        if (this.words.length === 0) {
-            this.cardFrontWord.textContent = "Словарь пуст";
-            this.cardBackTranslation.textContent = "Добавьте слова в библиотеке";
-            this.cardBackExample.textContent = "";
-            this.cardCounter.textContent = "0 / 0";
-            return;
-        }
-
-        if (this.currentIndex >= this.words.length) {
-            this.currentIndex = 0;
-        }
-
-        const card = this.words[this.currentIndex];
-        this.flashcard.classList.remove('flipped');
-        this.flashcard.style.transform = 'translateX(0) rotate(0)';
-
-        this.cardFrontWord.textContent = card.word;
-        this.cardBackTranslation.textContent = card.translation;
-        this.cardBackExample.textContent = card.example ? `"${card.example}"` : '';
-        this.cardCounter.textContent = `${this.currentIndex + 1} / ${this.words.length}`;
-    }
-
-    handleAnswer(isKnown) {
-        if (this.words.length === 0) return;
-
-        const currentWord = this.words[this.currentIndex];
-
-        if (!isKnown) {
-            currentWord.errors = (currentWord.errors || 0) + 1;
-            // Логика перестановки: переместить карточку через 2 позиции вперед
-            this.words.splice(this.currentIndex, 1);
-            const targetIndex = Math.min(this.currentIndex + 2, this.words.length);
-            this.words.splice(targetIndex, 0, currentWord);
-        } else {
-            this.currentIndex++;
-        }
-
-        this.saveData();
-        this.renderCurrentCard();
-    }
-
-    addNewWord() {
-        const wordInput = document.getElementById('input-word');
-        const translationInput = document.getElementById('input-translation');
-        const exampleInput = document.getElementById('input-example');
-
-        const newCard = {
-            id: Date.now(),
-            word: wordInput.value.trim(),
-            translation: translationInput.value.trim(),
-            example: exampleInput.value.trim(),
-            errors: 0
-        };
-
-        this.words.push(newCard);
-        this.saveData();
-        this.renderLibrary();
-        
-        wordInput.value = '';
-        translationInput.value = '';
-        exampleInput.value = '';
-
-        alert('Слово добавлено!');
-    }
-
-    renderLibrary(filter = '') {
-        this.wordsList.innerHTML = '';
-        
-        const filtered = this.words.filter(w => 
-            w.word.toLowerCase().includes(filter.toLowerCase()) || 
-            w.translation.toLowerCase().includes(filter.toLowerCase())
-        );
-
-        filtered.forEach(item => {
-            const el = document.createElement('div');
-            el.className = 'word-item';
-            el.innerHTML = `
-                <div class="word-item-info">
-                    <strong>${item.word}</strong>
-                    <span>${item.translation}</span>
-                </div>
-                <button class="delete-btn" data-id="${item.id}">🗑</button>
-            `;
-
-            el.querySelector('.delete-btn').addEventListener('click', (e) => {
-                this.deleteWord(Number(e.target.dataset.id));
-            });
-
-            this.wordsList.appendChild(el);
-        });
-    }
-
-    deleteWord(id) {
-        this.words = this.words.filter(w => w.id !== id);
-        this.saveData();
-        this.renderLibrary();
-        this.renderCurrentCard();
-    }
-
-    exportData() {
-        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(this.words, null, 2));
-        const downloadAnchor = document.createElement('a');
-        downloadAnchor.setAttribute("href", dataStr);
-        downloadAnchor.setAttribute("download", `wordly_backup_${new Date().toISOString().slice(0,10)}.json`);
-        document.body.appendChild(downloadAnchor);
-        downloadAnchor.click();
-        downloadAnchor.remove();
-    }
-
-    importData(event) {
-        const fileReader = new FileReader();
-        fileReader.onload = (e) => {
-            try {
-                const importedWords = JSON.parse(e.target.result);
-                if (Array.isArray(importedWords)) {
-                    this.words = importedWords;
-                    this.saveData();
-                    this.renderLibrary();
-                    this.renderCurrentCard();
-                    alert('Данные успешно импортированы!');
-                } else {
-                    alert('Неверный формат файла JSON.');
-                }
-            } catch (err) {
-                alert('Ошибка при чтении файла JSON.');
-            }
-        };
-        fileReader.readAsText(event.target.files[0]);
-    }
-
-    clearAllData() {
-        if (confirm('Вы уверены, что хотите полностью сбросить все карточки?')) {
-            this.words = [];
-            this.saveData();
-            this.renderLibrary();
-            this.renderCurrentCard();
-        }
-    }
-
     saveData() {
-        localStorage.setItem('wordly_words', JSON.stringify(this.words));
+        localStorage.setItem('wordly_quizlet_sets', JSON.stringify(this.sets));
+    }
+
+    exportJSON() {
+        const blob = new Blob([JSON.stringify(this.sets, null, 2)], { type: 'application/json' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `quizlet_backup_${new Date().toISOString().slice(0,10)}.json`;
+        a.click();
+    }
+
+    importJSON(e) {
+        const reader = new FileReader();
+        reader.onload = (evt) => {
+            this.sets = JSON.parse(evt.target.result);
+            this.saveData();
+            this.renderHomeSets();
+            alert('Модули загружены!');
+        };
+        reader.readAsText(e.target.files[0]);
     }
 }
 
-// Init App
 document.addEventListener('DOMContentLoaded', () => {
-    window.app = new WordlyApp();
+    window.app = new QuizletApp();
 });
