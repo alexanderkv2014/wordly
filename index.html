@@ -7,17 +7,18 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <section id="tab-home" class="tab-content active">
+    <!-- Главный экран -->
+    <section id="tab-home" class="screen active">
         <header class="app-header">
             <div class="brand-title">
                 <span class="s-all-tag">WORDLY</span>
                 <h1>Главная</h1>
             </div>
-            <button class="profile-avatar" id="open-profile-btn" aria-label="Профиль">A</button>
+            <button class="profile-avatar" id="open-profile-btn" onclick="showScreen('screen-profile')" aria-label="Профиль">A</button>
         </header>
         <main class="content-scroll">
             <div class="menu-list">
-                <div class="menu-item" onclick="startStudy('cards')">
+                <div class="menu-item" onclick="showScreen('screen-cards')">
                     <div class="menu-icon icon-blue">🎴</div>
                     <div class="menu-info">
                         <div class="title">Карточки</div>
@@ -25,7 +26,7 @@
                     </div>
                     <span class="chevron">›</span>
                 </div>
-                <div class="menu-item" onclick="startStudy('learn')">
+                <div class="menu-item" onclick="showScreen('screen-learn')">
                     <div class="menu-icon icon-purple">📚</div>
                     <div class="menu-info">
                         <div class="title">Обучение</div>
@@ -33,6 +34,48 @@
                     </div>
                     <span class="chevron">›</span>
                 </div>
+            </div>
+        </main>
+    </section>
+
+    <!-- Экран: Карточки -->
+    <section id="screen-cards" class="screen">
+        <header class="app-header">
+            <button class="back-btn" onclick="showScreen('tab-home')">‹ Назад</button>
+            <h2>Карточки</h2>
+            <div style="width: 44px;"></div>
+        </header>
+        <main class="content-scroll">
+            <div class="placeholder-card">
+                <p>Раздел тренажера карточек находится в разработке.</p>
+            </div>
+        </main>
+    </section>
+
+    <!-- Экран: Обучение (Грамматика) -->
+    <section id="screen-learn" class="screen">
+        <header class="app-header">
+            <button class="back-btn" onclick="showScreen('tab-home')">‹ Назад</button>
+            <h2>Обучение</h2>
+            <div style="width: 44px;"></div>
+        </header>
+        <main class="content-scroll">
+            <div class="placeholder-card">
+                <p>Здесь будут списки тем грамматики и тесты.</p>
+            </div>
+        </main>
+    </section>
+
+    <!-- Экран: Профиль -->
+    <section id="screen-profile" class="screen">
+        <header class="app-header">
+            <button class="back-btn" onclick="showScreen('tab-home')">‹ Назад</button>
+            <h2>Профиль</h2>
+            <div style="width: 44px;"></div>
+        </header>
+        <main class="content-scroll">
+            <div class="placeholder-card">
+                <p>Статистика и настройки профиля.</p>
             </div>
         </main>
     </section>
