@@ -1,147 +1,40 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Wordly</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>WORDLY</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <section id="tab-home" class="tab-content active">
-    <header class="app-header">
-      <div class="brand-title">
-        <span class="small-tag">WORDLY</span>
-        <h1>РњРѕР№ РЅР°Р±РѕСЂ</h1>
-      </div>
-      <button class="profile-avatar" id="open-profile-btn" aria-label="РџСЂРѕС„РёР»СЊ">A</button>
-    </header>
-    <main class="content-scroll">
-      <div class="menu-list">
-        <div class="menu-item" onclick="startStudy('cards')">
-          <div class="menu-icon icon-blue">рџЋґ</div>
-          <div class="menu-info">
-            <div class="title">РљР°СЂС‚РѕС‡РєРё</div>
-            <div class="subtitle">РЎРІР°Р№РїР°Р№С‚Рµ Рё РїРѕРІС‚РѕСЂСЏР№С‚Рµ</div>
-          </div>
-          <span class="chevron">вЂє</span>
-        </div>
-        <div class="menu-item" onclick="startStudy('learn')">
-          <div class="menu-icon icon-purple">в·</div>
-          <div class="menu-info">
-            <div class="title">Р—Р°СѓС‡РёРІР°РЅРёРµ</div>
-            <div class="subtitle">РџРѕС€Р°РіРѕРІРѕРµ РёР·СѓС‡РµРЅРёРµ СЃР»РѕРІ</div>
-          </div>
-          <span class="chevron">вЂє</span>
-        </div>
-        <div class="menu-item" onclick="startStudy('test')">
-          <div class="menu-icon icon-indigo">вЃ›</div>
-          <div class="menu-info">
-            <div class="title">РўРµСЃС‚</div>
-            <div class="subtitle">РџСЂРѕРІРµСЂРєР° Р·РЅР°РЅРёР№</div>
-          </div>
-          <span class="chevron">вЂє</span>
-        </div>
-        <div class="menu-item" onclick="switchTab('tab-library')">
-          <div class="menu-icon icon-cyan">в–¦</div>
-          <div class="menu-info">
-            <div class="title">Р“РѕС‚РѕРІС‹Рµ РЅР°Р±РѕСЂС‹</div>
-            <div class="subtitle">РЎР»РѕРІР° РїРѕ СѓСЂРѕРІРЅСЏРј A1вЂ“B2</div>
-          </div>
-          <span class="chevron">вЂє</span>
-        </div>
-        <div class="menu-item" onclick="openFavorites()">
-          <div class="menu-icon icon-star">в…</div>
-          <div class="menu-info">
-            <div class="title">РР·Р±СЂР°РЅРЅРѕРµ</div>
-            <div class="subtitle">РЎР»РѕРІР°, РѕС‚РјРµС‡РµРЅРЅС‹Рµ Р·РІРµР·РґРѕР№</div>
-          </div>
-          <span class="chevron">вЂє</span>
-        </div>
-      </div>
-      <button class="btn-add-word-main" id="btn-add-word">+ Р”РѕР±Р°РІРёС‚СЊ СЃР»РѕРІРѕ</button>
-    </main>
-  </section>
-
-  <section id="tab-library" class="tab-content">
-    <header class="library-header">
-      <div class="header-top">
-        <h1>Р’Р°С€Р° Р±РёР±Р»РёРѕС‚РµРєР°</h1>
-        <button class="icon-btn-add" id="lib-add-btn">+</button>
-      </div>
-      <div class="chip-group">
-        <button class="chip active" data-subtab="modules">РњРѕРґСѓР»Рё</button>
-        <button class="chip" data-subtab="folders">РџР°РїРєРё</button>
-      </div>
-    </header>
-    <main class="content-scroll">
-      <div id="subtab-modules" class="subtab-content active">
-        <div class="list-container" id="library-modules-list"></div>
-      </div>
-      <div id="subtab-folders" class="subtab-content">
-        <div class="list-container" id="library-folders-list"></div>
-      </div>
-    </main>
-  </section>
-
-  <section id="screen-profile" class="screen-full">
-    <header class="study-header">
-      <button class="btn-close" id="close-profile">вњ•</button>
-      <span class="study-progress-text">РџСЂРѕС„РёР»СЊ</span>
-      <div style="width: 24px;"></div>
-    </header>
-    <main class="content-scroll profile-body">
-      <div class="user-card">
-        <div class="profile-avatar large">A</div>
-        <h2>alexanderkv2014</h2>
-        <p class="user-email">alexanderkv2014@gmail.com</p>
-      </div>
-      <div class="menu-list">
-        <div class="menu-item" onclick="alert('РќР°СЃС‚СЂРѕР№РєРё РѕС‚РєСЂС‹С‚С‹')">
-          <div class="menu-info"><div class="title">РќР°СЃС‚СЂРѕР№РєРё Р°РєРєР°СѓРЅС‚Р°</div></div>
-          <span class="chevron">вЂє</span>
-        </div>
-      </div>
-    </main>
-  </section>
-
-  <section id="screen-study" class="screen-full">
-    <header class="study-header">
-      <button class="btn-close" id="close-study">вњ•</button>
-      <span class="study-progress-text" id="study-counter">1 / 10</span>
-      <button class="btn-gear">вљ™пёЏ</button>
-    </header>
-    <div class="study-body">
-      <div class="card-container" id="flashcard">
-        <div class="card-inner">
-          <div class="card-front"><span class="card-term" id="card-term-text">Term</span></div>
-          <div class="card-back"><span class="card-definition" id="card-def-text">Definition</span></div>
-        </div>
-      </div>
-    </div>
-    <footer class="study-footer">
-      <p class="hint-text">РљРѕСЃРЅРёС‚РµСЃСЊ РєР°СЂС‚РѕС‡РєРё, С‡С‚РѕР±С‹ РїРµСЂРµРІРµСЂРЅСѓС‚СЊ</p>
-      <div class="study-actions">
-        <button class="btn-know-bad" id="btn-know-bad">Р•С‰Рµ РёР·СѓС‡Р°СЋ</button>
-        <button class="btn-know-good" id="btn-know-good">Р—РЅР°СЋ</button>
-      </div>
-    </footer>
-  </section>
-
-  <nav class="bottom-nav">
-    <button class="nav-item active" data-tab="tab-home">
-      <span class="nav-icon">рџЏ </span>
-      <span class="nav-label">Р“Р»Р°РІРЅР°СЏ</span>
-    </button>
-    <button class="nav-item" id="nav-create-btn">
-      <span class="nav-icon">вћ•</span>
-      <span class="nav-label">РЎРѕР·РґР°С‚СЊ</span>
-    </button>
-    <button class="nav-item" data-tab="tab-library">
-      <span class="nav-icon">рџ“Ѓ</span>
-      <span class="nav-label">Р‘РёР±Р»РёРѕС‚РµРєР°</span>
-    </button>
-  </nav>
-
-  <script src="app.js"></script>
+    <section id="tab-home" class="tab-content active">
+        <header class="app-header">
+            <div class="brand-title">
+                <span class="s-all-tag">WORDLY</span>
+                <h1>Главная</h1>
+            </div>
+            <button class="profile-avatar" id="open-profile-btn" aria-label="Профиль">A</button>
+        </header>
+        <main class="content-scroll">
+            <div class="menu-list">
+                <div class="menu-item" onclick="startStudy('cards')">
+                    <div class="menu-icon icon-blue"></div>
+                    <div class="menu-info">
+                        <div class="title">Карточки</div>
+                        <div class="subtitle">Изучайте новые слова по карточкам</div>
+                    </div>
+                    <span class="chevron">›</span>
+                </div>
+                <div class="menu-item" onclick="startStudy('learn')">
+                    <div class="menu-icon icon-purple"></div>
+                    <div class="menu-info">
+                        <div class="title">Обучение</div>
+                        <div class="subtitle">Практика и тесты по грамматике</div>
+                    </div>
+                    <span class="chevron">›</span>
+                </div>
+            </div>
+        </main>
+    </section>
 </body>
 </html>
