@@ -301,3 +301,10 @@ function checkAnswer(selectedIdx, correctIdx) {
         feedback.className = "test-feedback error";
     }
 }
+
+// Автоматическая инициализация тестовых данных
+if (!localStorage.getItem('wordly_initialized_v3')) {
+    localStorage.clear();
+    localStorage.setItem('wordly_initialized_v3', 'true');
+    location.reload();
+}

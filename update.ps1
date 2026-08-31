@@ -26,3 +26,4 @@ Write-Host "3. Pushing to GitHub Pages..." -ForegroundColor Green
 git push origin main
 
 Write-Host "=== SUCCESS! Site updated ===" -ForegroundColor Cyan
+
