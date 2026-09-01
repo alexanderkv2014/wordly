@@ -411,6 +411,19 @@ function addPackWords(levelKey) {
   return added;
 }
 
+// Убирает из личной библиотеки все слова, которые пришли из этого набора
+// (сравниваем по паре английское+перевод, как и при добавлении). Прогресс
+// и статус "избранное" по этим словам теряются безвозвратно.
+function removePackWords(levelKey) {
+  const pack = PACKS[levelKey];
+  if (!pack) return 0;
+  const keysToRemove = new Set(pack.words.map(([en, ru]) => (en + "|" + ru).toLowerCase()));
+  const before = words.length;
+  words = words.filter(w => !keysToRemove.has((w.en + "|" + w.ru).toLowerCase()));
+  save();
+  return before - words.length;
+}
+
 function renderPacks() {
   const list = document.getElementById("packs-list");
   list.innerHTML = Object.entries(PACKS).map(([key, pack]) => {
@@ -420,13 +433,36 @@ function renderPacks() {
     return `
       <div class="pack-card">
         <div class="pack-info"><b>${pack.title}</b><small>${pack.words.length} слов${alreadyAdded ? ` · добавлено ${alreadyAdded}` : ""}</small></div>
-        <button class="pack-add ${done ? "done" : ""}" data-level="${key}">${done ? "✓ Добавлено" : "Добавить"}</button>
+        <button class="pack-add ${done ? "done" : ""}" data-level="${key}" data-done="${done}">${done ? "✓ Добавлено · Убрать" : "Добавить"}</button>
       </div>`;
   }).join("");
 
   list.querySelectorAll(".pack-add").forEach(btn => {
     btn.onclick = () => {
-      const added = addPackWords(btn.dataset.level);
+      const levelKey = btn.dataset.level;
+      const pack = PACKS[levelKey];
+
+      // Набор уже полностью добавлен — повторное нажатие убирает его целиком
+      if (btn.dataset.done === "true") {
+        openModal(`
+          <div class="modal-icon">⌦</div>
+          <h2>Удалить набор «${pack.title}»?</h2>
+          <p>Все слова этого набора и прогресс по ним удалятся из твоей библиотеки безвозвратно.</p>
+          <button class="big-add danger" id="confirm-pack-remove">Удалить набор</button>
+          <button class="modal-cancel" id="modal-cancel">Отмена</button>
+        `);
+        document.getElementById("modal-cancel").onclick = closeModal;
+        document.getElementById("confirm-pack-remove").onclick = () => {
+          const removed = removePackWords(levelKey);
+          closeModal();
+          renderPacks();
+          toast(`Удалено слов: ${removed}`);
+        };
+        return;
+      }
+
+      // Набора ещё нет (или добавлен не весь) — нажатие добавляет остаток
+      const added = addPackWords(levelKey);
       renderPacks();
       openModal(`
         <div class="modal-icon">✓</div>
