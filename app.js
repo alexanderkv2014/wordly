@@ -260,6 +260,109 @@ document.getElementById("word-form").addEventListener("submit", e => {
 });
 document.getElementById("save-word").onclick = () => document.getElementById("word-form").requestSubmit();
 
+/* ===================== АВТОПОДСКАЗКА АНГЛИЙСКОГО СЛОВА ===================== */
+// Список слов для подсказки при вводе — работает полностью офлайн, без сети.
+// Часть слов совпадает с "Готовыми наборами" (PACKS), остальные — дополнительный
+// словарь на ~290 слов, чтобы подсказка находилась чаще.
+const WORD_SUGGESTIONS = [
+  // из "Готовых наборов" (A1–B2)
+  "hello","name","water","house","family","friend","school","book","food","day",
+  "night","time","work","money","city","car","dog","cat","big","small",
+  "good","bad","happy","sad","eat","drink","sleep","today","tomorrow","yesterday",
+  "weather","holiday","shop","buy","sell","travel","airport","ticket","hotel","restaurant",
+  "hospital","doctor","teacher","student","job","meeting","weekend","sport","exercise","healthy",
+  "tired","busy","free","remember","forget","explain","understand","decide","borrow","lend",
+  "opinion","suggest","improve","achieve","success","failure","challenge","opportunity","experience","skill",
+  "responsible","reliable","confident","anxious","relationship","environment","pollution","government","economy","increase",
+  "decrease","compare","describe","imagine","avoid","encourage","behavior","attitude","society","culture",
+  "inevitable","controversial","significant","sustainable","innovative","efficient","flexible","ambiguous","genuine","reluctant",
+  "thorough","deliberate","ultimately","consequently","nevertheless","contradict","justify","persuade","assume","acknowledge",
+  "perspective","dilemma","controversy","adapt","accomplish","prioritize","overwhelmed","resilient","subtle","versatile",
+  // еда и кухня
+  "garlic","onion","potato","tomato","carrot","cucumber","banana","orange","grape","strawberry",
+  "lemon","pineapple","mango","peach","cherry","pizza","sandwich","chicken","beef","pork",
+  "fish","rice","pasta","salt","sugar","cheese","butter","honey","jam","cake",
+  "bread","milk","coffee","tea","juice","soup","salad","meat","vegetable","fruit",
+  "egg","cookie","chocolate","yogurt","sauce",
+  // природа и география
+  "mountain","river","lake","sea","ocean","forest","desert","island","valley","field",
+  "hill","cave","waterfall","cliff","coast","jungle","volcano","canyon","glacier","meadow",
+  "grass","leaf","root","branch","seed","soil","rock","sand","wave","stone","bush","moss",
+  // одежда
+  "shirt","trousers","jacket","shoes","hat","gloves","scarf","socks","belt","jeans",
+  "dress","skirt","sweater","coat","boots",
+  // профессии
+  "engineer","lawyer","driver","waiter","farmer","artist","musician","actor","nurse","pilot",
+  "soldier","chef","journalist","plumber","electrician",
+  // прилагательные
+  "fast","slow","heavy","light","loud","quiet","soft","hard","sharp","smooth",
+  "dry","wet","narrow","dirty","empty","full","cheap","expensive","strong","weak",
+  // глаголы
+  "jump","climb","swim","fly","dance","sing","paint","cook","clean","wash",
+  "push","pull","carry","throw","catch","build","break","fix","open","close",
+  "wait","laugh","cry","shout","whisper",
+  // месяцы и дни недели
+  "january","february","march","april","june","july","august","september","october","november","december",
+  "monday","tuesday","wednesday","thursday","friday","saturday","sunday",
+  // цвета
+  "black","white","yellow","purple","pink","brown","grey","gold","silver","navy",
+  // части тела
+  "head","arm","leg","hand","foot","eye","ear","nose","mouth","hair",
+  "finger","knee","shoulder","back","chest","stomach",
+  // погода
+  "rain","snow","wind","storm","cloud","fog","thunder","lightning","rainbow","hurricane",
+  // транспорт
+  "bicycle","train","bus","ship","boat","motorcycle","subway","taxi","truck","helicopter","tractor","scooter",
+  // мебель
+  "table","chair","bed","sofa","shelf","wardrobe","mirror","lamp","curtain","carpet","drawer","cupboard",
+  // электроника
+  "television","radio","camera","printer","keyboard","charger","headphones","tablet","speaker","router",
+  // животные
+  "horse","cow","pig","sheep","goat","duck","rabbit","mouse","elephant","lion",
+  "tiger","bear","wolf","fox","deer","monkey","snake","bird","butterfly","spider",
+  // семья
+  "mother","father","sister","brother","grandmother","grandfather","uncle","aunt","cousin","husband","wife","son","daughter","baby",
+  // школа
+  "pencil","pen","paper","notebook","eraser","ruler","desk","classroom","homework","exam",
+  "lesson","university","library","dictionary"
+];
+
+document.getElementById("input-en").addEventListener("input", e => {
+  const query = e.target.value.trim().toLowerCase();
+  const box = document.getElementById("en-suggestions");
+
+  if (query.length < 2) {
+    box.classList.add("hidden");
+    box.innerHTML = "";
+    return;
+  }
+
+  const matches = WORD_SUGGESTIONS.filter(w => w.startsWith(query)).slice(0, 6);
+  if (!matches.length) {
+    box.classList.add("hidden");
+    box.innerHTML = "";
+    return;
+  }
+
+  box.innerHTML = matches.map(w => `<button type="button">${escapeHTML(w)}</button>`).join("");
+  box.classList.remove("hidden");
+  box.querySelectorAll("button").forEach((btn, i) => {
+    btn.onclick = () => {
+      e.target.value = matches[i];
+      box.classList.add("hidden");
+      box.innerHTML = "";
+      document.getElementById("input-ru").focus();
+    };
+  });
+});
+
+// Скрываем подсказки при клике мимо поля и списка
+document.addEventListener("click", e => {
+  if (!e.target.closest(".field-autocomplete")) {
+    document.getElementById("en-suggestions").classList.add("hidden");
+  }
+});
+
 /* ===================== ГОТОВЫЕ НАБОРЫ ПО УРОВНЯМ ===================== */
 // Формат одного слова: [английское, перевод, пример]
 const PACKS = {
