@@ -688,8 +688,13 @@ function showCardsCard() {
     document.getElementById("cards-answer").classList.add("hidden");
     document.getElementById("cards-progress-label").textContent = `${cardsQueue.length} / ${cardsQueue.length}`;
     document.getElementById("cards-progress-bar").style.width = "100%";
+    document.getElementById("cards-review-actions").classList.add("hidden");
+    // "Завершить" показываем только если сессия реально пройдена (не для пустой библиотеки)
+    document.getElementById("cards-finish").classList.toggle("hidden", empty || noFavorites);
     return;
   }
+  document.getElementById("cards-review-actions").classList.remove("hidden");
+  document.getElementById("cards-finish").classList.add("hidden");
   const w = cardsQueue[cardsIndex];
   document.getElementById("cards-word").textContent = w.en;
   document.getElementById("cards-translation").textContent = w.ru;
@@ -716,9 +721,19 @@ function answerCards(knew) {
   const w = cardsQueue[cardsIndex];
   if (!w) return;
   updateWordProgress(w, knew);
+
+  if (!knew) {
+    // Слово, которое пользователь не знает, не просто откладывается на
+    // завтра — оно ещё раз всплывёт в этой же сессии, через 1–10 карточек.
+    const offset = 1 + Math.floor(Math.random() * 10); // от 1 до 10
+    cardsQueue.splice(cardsIndex + offset, 0, w);
+  }
+
   cardsIndex++;
   showCardsCard();
 }
+
+document.getElementById("cards-finish").onclick = () => screen("screen-home");
 
 document.getElementById("cards-card").onclick = () => {
   const answer = document.getElementById("cards-answer");
