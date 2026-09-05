@@ -1,3 +1,103 @@
+/* ===================== АККАУНТ (Supabase Auth) — Этап A ===================== */
+// Пока это только вход/регистрация. Слова по-прежнему хранятся в localStorage
+// на этом устройстве — перенос слов в облако будет следующим шагом.
+const SUPABASE_URL = "https://vdqaopxcqjaqxbrosakd.supabase.co";
+const SUPABASE_KEY = "sb_publishable_2i4TKSiE1lKDv1LKBVcFfw_GQ74BSjR";
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+function showAuthScreen() {
+  document.getElementById("bottom-nav").classList.add("hidden");
+  document.querySelectorAll(".screen").forEach(s => s.classList.toggle("active", s.id === "screen-auth"));
+}
+
+let appHasStarted = false;
+function showApp() {
+  document.getElementById("bottom-nav").classList.remove("hidden");
+  document.getElementById("screen-auth").classList.remove("active");
+  // Открываем Главную только один раз, при первом входе — если пользователь
+  // уже где-то листает приложение, повторные проверки сессии не должны
+  // сбрасывать его на Главную.
+  if (!appHasStarted) {
+    appHasStarted = true;
+    document.getElementById("screen-home").classList.add("active");
+  }
+}
+
+function authMessage(message, isError = true) {
+  const box = document.getElementById("auth-error");
+  box.textContent = message;
+  box.classList.remove("hidden");
+  box.classList.toggle("success", !isError);
+}
+function clearAuthMessage() {
+  document.getElementById("auth-error").classList.add("hidden");
+}
+
+// Supabase возвращает тексты ошибок по-английски — переводим самые частые
+function translateAuthError(message) {
+  const map = {
+    "Invalid login credentials": "Неверный email или пароль",
+    "User already registered": "Такой пользователь уже зарегистрирован",
+    "Email not confirmed": "Email ещё не подтверждён — проверь почту",
+    "Password should be at least 6 characters": "Пароль должен быть не короче 6 символов"
+  };
+  return map[message] || message;
+}
+
+document.getElementById("auth-form").addEventListener("submit", e => {
+  e.preventDefault();
+  document.getElementById("auth-signin").click();
+});
+
+document.getElementById("auth-signin").onclick = async () => {
+  clearAuthMessage();
+  const email = document.getElementById("auth-email").value.trim();
+  const password = document.getElementById("auth-password").value;
+  if (!email || !password) { authMessage("Заполни email и пароль"); return; }
+  const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+  if (error) authMessage(translateAuthError(error.message));
+};
+
+document.getElementById("auth-signup").onclick = async () => {
+  clearAuthMessage();
+  const email = document.getElementById("auth-email").value.trim();
+  const password = document.getElementById("auth-password").value;
+  if (!email || !password) { authMessage("Заполни email и пароль"); return; }
+  if (password.length < 6) { authMessage("Пароль должен быть не короче 6 символов"); return; }
+  const { error } = await supabaseClient.auth.signUp({ email, password });
+  if (error) { authMessage(translateAuthError(error.message)); return; }
+  authMessage("Проверь почту — мы отправили письмо для подтверждения аккаунта.", false);
+};
+
+document.getElementById("auth-forgot").onclick = async () => {
+  clearAuthMessage();
+  const email = document.getElementById("auth-email").value.trim();
+  if (!email) { authMessage("Сначала введи email в поле выше"); return; }
+  const { error } = await supabaseClient.auth.resetPasswordForEmail(email);
+  if (error) { authMessage(translateAuthError(error.message)); return; }
+  authMessage("Письмо для сброса пароля отправлено на почту.", false);
+};
+
+supabaseClient.auth.onAuthStateChange((_event, session) => {
+  session ? showApp() : showAuthScreen();
+  document.getElementById("signout-email").textContent = session ? session.user.email : "Текущий аккаунт";
+});
+
+document.getElementById("signout-btn").onclick = () => {
+  openModal(`<div class="modal-icon">⏻</div><h2>Выйти из аккаунта?</h2><p>Понадобится снова ввести email и пароль, чтобы вернуться.</p><button class="big-add danger" id="confirm-signout">Выйти</button><button class="modal-cancel" id="modal-cancel">Отмена</button>`);
+  document.getElementById("modal-cancel").onclick = closeModal;
+  document.getElementById("confirm-signout").onclick = async () => {
+    await supabaseClient.auth.signOut();
+    closeModal();
+    appHasStarted = false;
+  };
+};
+
+// Проверяем сразу при загрузке — вдруг сессия уже сохранена с прошлого раза
+supabaseClient.auth.getSession().then(({ data }) => {
+  data.session ? showApp() : showAuthScreen();
+});
+
 const KEY = "wordly-words-v2";
 const THEME = "wordly-theme-v2";
 const STATS = "wordly-stats-v1";
