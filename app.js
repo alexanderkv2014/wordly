@@ -44,6 +44,30 @@ function translateAuthError(message) {
   return map[message] || message;
 }
 
+// Оценка надёжности пароля — простая эвристика, без сторонних библиотек
+function passwordStrength(pw) {
+  if (!pw) return { score: 0, label: "" };
+  if (pw.length < 6) return { score: 1, label: "Слишком короткий (минимум 6 символов)" };
+  let variety = 0;
+  if (/[a-zа-я]/.test(pw)) variety++;
+  if (/[A-ZА-Я]/.test(pw)) variety++;
+  if (/[0-9]/.test(pw)) variety++;
+  if (/[^a-zA-Zа-яА-Я0-9]/.test(pw)) variety++;
+  if (pw.length >= 10 && variety >= 3) return { score: 4, label: "Надёжный" };
+  if (pw.length >= 8 && variety >= 2) return { score: 3, label: "Средний" };
+  return { score: 2, label: "Слабый" };
+}
+
+const strengthColors = { 1: "var(--bad)", 2: "var(--bad)", 3: "#e0a83a", 4: "var(--good)" };
+const strengthWidth = { 0: "0%", 1: "20%", 2: "45%", 3: "70%", 4: "100%" };
+
+document.getElementById("auth-password").addEventListener("input", e => {
+  const { score, label } = passwordStrength(e.target.value);
+  document.getElementById("pw-strength-bar").style.width = strengthWidth[score];
+  document.getElementById("pw-strength-bar").style.background = strengthColors[score] || "var(--line)";
+  document.getElementById("pw-strength-label").textContent = label;
+});
+
 document.getElementById("auth-form").addEventListener("submit", e => {
   e.preventDefault();
   document.getElementById("auth-signin").click();
@@ -777,6 +801,45 @@ document.querySelectorAll("#cards-scope button").forEach(btn => {
   btn.onclick = () => { cardsScope = btn.dataset.scope; startCards(); };
 });
 
+/* ===================== РЕЖИМ "КАРТОЧКИ С ПРОПУСКОМ" ===================== */
+// Вместо голого слова показываем пример с пропуском на месте слова —
+// это лучше запоминает роль слова в предложении (особенно для местоимений,
+// предлогов и других "служебных" слов).
+let clozeMode = localStorage.getItem("wordly-cloze") === "1";
+
+function updateClozeUI() {
+  const indicator = document.getElementById("cloze-indicator");
+  indicator.textContent = clozeMode ? "Вкл" : "Выкл";
+  indicator.style.color = clozeMode ? "var(--good)" : "var(--muted)";
+}
+
+document.getElementById("cloze-btn").onclick = () => {
+  clozeMode = !clozeMode;
+  localStorage.setItem("wordly-cloze", clozeMode ? "1" : "0");
+  updateClozeUI();
+};
+updateClozeUI();
+
+function escapeRegExp(s) {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+// Если у слова есть пример и слово реально встречается в нём отдельным
+// словом — возвращает пример с "___" вместо слова. Иначе — null (тогда
+// экран покажет обычное слово, как раньше).
+function buildClozeFront(word) {
+  if (!clozeMode || !word.example) return null;
+  const re = new RegExp(`\\b${escapeRegExp(word.en)}\\b`, "i");
+  if (!re.test(word.example)) return null;
+  return word.example.replace(re, "___");
+}
+
+// То же предложение, но слово подсвечено жирным — для обратной стороны
+function highlightWordInExample(word) {
+  const re = new RegExp(`\\b${escapeRegExp(word.en)}\\b`, "i");
+  return escapeHTML(word.example).replace(re, m => `<b>${m}</b>`);
+}
+
 function showCardsCard() {
   if (!cardsQueue.length || cardsIndex >= cardsQueue.length) {
     const empty = words.length === 0;
@@ -796,9 +859,12 @@ function showCardsCard() {
   document.getElementById("cards-review-actions").classList.remove("hidden");
   document.getElementById("cards-finish").classList.add("hidden");
   const w = cardsQueue[cardsIndex];
-  document.getElementById("cards-word").textContent = w.en;
+  const clozeFront = buildClozeFront(w);
+  document.getElementById("cards-word").textContent = clozeFront || w.en;
   document.getElementById("cards-translation").textContent = w.ru;
-  document.getElementById("cards-example").textContent = w.example || "";
+  document.getElementById("cards-example").innerHTML = clozeFront
+    ? highlightWordInExample(w)
+    : escapeHTML(w.example || "");
   document.getElementById("cards-answer").classList.add("hidden");
   document.getElementById("cards-hint").classList.remove("hidden");
   document.getElementById("cards-progress-label").textContent = `${cardsIndex + 1} / ${cardsQueue.length}`;
@@ -867,9 +933,12 @@ function showLearnCard() {
   }
 
   const w = learnQueue[learnIndex];
-  document.getElementById("learn-word").textContent = w.en;
+  const clozeFront = buildClozeFront(w);
+  document.getElementById("learn-word").textContent = clozeFront || w.en;
   document.getElementById("learn-translation").textContent = w.ru;
-  document.getElementById("learn-example").textContent = w.example || "";
+  document.getElementById("learn-example").innerHTML = clozeFront
+    ? highlightWordInExample(w)
+    : escapeHTML(w.example || "");
   document.getElementById("learn-answer").classList.add("hidden");
   document.getElementById("learn-hint").classList.remove("hidden");
   document.getElementById("learn-progress-label").textContent = `${learnIndex + 1} / ${learnQueue.length}`;

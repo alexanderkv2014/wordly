@@ -23,6 +23,8 @@
     <form id="auth-form" class="form">
       <label>Email<input id="auth-email" type="email" required autocomplete="email" placeholder="you@example.com"></label>
       <label>Пароль<input id="auth-password" type="password" required autocomplete="current-password" placeholder="Минимум 6 символов"></label>
+      <div class="pw-strength" id="pw-strength"><span id="pw-strength-bar"></span></div>
+      <small id="pw-strength-label" class="pw-strength-label"></small>
     </form>
 
     <div id="auth-error" class="auth-error hidden"></div>
@@ -107,6 +109,10 @@
 
   <div class="settings-list">
     <button id="theme-btn"><span>◐</span><div><b>Тема</b><small id="theme-label">Системная</small></div><em>›</em></button>
+  </div>
+
+  <div class="settings-list">
+    <button id="cloze-btn"><span>▭</span><div><b>Карточки с пропуском</b><small>Слово в примере скрывается как ___</small></div><em id="cloze-indicator">Выкл</em></button>
   </div>
 
   <div class="settings-heading">Опасная зона</div>
