@@ -105,6 +105,11 @@ document.getElementById("auth-forgot").onclick = async () => {
 supabaseClient.auth.onAuthStateChange((_event, session) => {
   session ? showApp() : showAuthScreen();
   document.getElementById("signout-email").textContent = session ? session.user.email : "Текущий аккаунт";
+  const newUserId = session ? session.user.id : null;
+  if (newUserId !== currentUserId) {
+    currentUserId = newUserId;
+    if (currentUserId) loadCloudData();
+  }
 });
 
 document.getElementById("signout-btn").onclick = () => {
@@ -112,6 +117,10 @@ document.getElementById("signout-btn").onclick = () => {
   document.getElementById("modal-cancel").onclick = closeModal;
   document.getElementById("confirm-signout").onclick = async () => {
     await supabaseClient.auth.signOut();
+    currentUserId = null;
+    cloudReady = false;
+    words = [];
+    stats = {};
     closeModal();
     appHasStarted = false;
   };
@@ -168,6 +177,138 @@ let words = (Array.isArray(storedWords) ? storedWords : []).map(normalizeWord);
 let stats = readJSON(STATS, {});
 if (typeof stats !== "object" || stats === null) stats = {};
 
+/* ===================== АККАУНТ (Supabase) — Этап B: слова и статистика в облаке =====================
+   localStorage остаётся мгновенным офлайн-кэшем (как и раньше). Пока
+   пользователь не вошёл — всё работает только локально, как до Этапа B.
+   После входа: сначала грузим данные из облака (перезаписывая локальные),
+   а дальше каждое сохранение параллельно уходит и в облако. */
+let currentUserId = null;
+let cloudReady = false;
+let cloudSyncTimer = null;
+const pendingSync = { words: false, stats: false };
+
+function queueCloudSync(what) {
+  if (!currentUserId) return;
+  pendingSync[what] = true;
+  clearTimeout(cloudSyncTimer);
+  cloudSyncTimer = setTimeout(runCloudSync, 800);
+}
+
+async function runCloudSync() {
+  if (!currentUserId) return;
+  if (pendingSync.words) { pendingSync.words = false; await pushWordsToCloud(); }
+  if (pendingSync.stats) { pendingSync.stats = false; await pushStatsToCloud(); }
+}
+
+// Заливаем текущий список слов целиком (upsert) и удаляем в облаке те id,
+// которых больше нет локально (слово было удалено на устройстве).
+async function pushWordsToCloud() {
+  try {
+    const rows = words.map(w => ({
+      user_id: currentUserId,
+      id: w.id, en: w.en, ru: w.ru, example: w.example, note: w.note,
+      level: w.level, favorite: w.favorite,
+      next_review: w.nextReview, created_at: w.createdAt
+    }));
+    if (rows.length) {
+      const { error } = await supabaseClient.from("words").upsert(rows, { onConflict: "user_id,id" });
+      if (error) throw error;
+    }
+    const { data: existing, error: selError } = await supabaseClient
+      .from("words").select("id").eq("user_id", currentUserId);
+    if (selError) throw selError;
+    const localIds = new Set(words.map(w => w.id));
+    const toDelete = (existing || []).filter(r => !localIds.has(r.id)).map(r => r.id);
+    if (toDelete.length) {
+      await supabaseClient.from("words").delete().eq("user_id", currentUserId).in("id", toDelete);
+    }
+  } catch (e) {
+    console.error("Не удалось синхронизировать слова с облаком", e);
+    toast("Не удалось сохранить в облако — данные остались на телефоне");
+  }
+}
+
+async function pushStatsToCloud() {
+  try {
+    const days = Object.keys(stats);
+    const rows = days.map(day => ({
+      user_id: currentUserId, day,
+      correct: stats[day].correct || 0, wrong: stats[day].wrong || 0
+    }));
+    if (rows.length) {
+      const { error } = await supabaseClient.from("stats").upsert(rows, { onConflict: "user_id,day" });
+      if (error) throw error;
+    }
+    const { data: existing, error: selError } = await supabaseClient
+      .from("stats").select("day").eq("user_id", currentUserId);
+    if (selError) throw selError;
+    const localDays = new Set(days);
+    const toDelete = (existing || []).filter(r => !localDays.has(r.day)).map(r => r.day);
+    if (toDelete.length) {
+      await supabaseClient.from("stats").delete().eq("user_id", currentUserId).in("day", toDelete);
+    }
+  } catch (e) {
+    console.error("Не удалось синхронизировать статистику с облаком", e);
+  }
+}
+
+// Загружает слова и статистику пользователя из облака. Если в облаке пусто,
+// а на телефоне уже есть слова — предлагает перенести их один раз.
+async function loadCloudData() {
+  try {
+    const [{ data: cloudWords, error: wErr }, { data: cloudStats, error: sErr }] = await Promise.all([
+      supabaseClient.from("words").select("*").eq("user_id", currentUserId),
+      supabaseClient.from("stats").select("*").eq("user_id", currentUserId)
+    ]);
+    if (wErr) throw wErr;
+    if (sErr) throw sErr;
+
+    const hasLocalData = words.length > 0;
+    const hasCloudData = (cloudWords && cloudWords.length > 0) || (cloudStats && cloudStats.length > 0);
+
+    if (!hasCloudData && hasLocalData) {
+      offerMigration();
+      cloudReady = true;
+      return;
+    }
+
+    words = (cloudWords || []).map(r => normalizeWord({
+      id: r.id, en: r.en, ru: r.ru, example: r.example, note: r.note,
+      level: r.level, favorite: r.favorite, nextReview: r.next_review, createdAt: r.created_at
+    }));
+    stats = {};
+    (cloudStats || []).forEach(r => { stats[r.day] = { correct: r.correct, wrong: r.wrong }; });
+
+    writeJSON(KEY, words);
+    writeJSON(STATS, stats);
+    cloudReady = true;
+    refreshVisibleScreens();
+  } catch (e) {
+    console.error("Не удалось загрузить данные из облака", e);
+    toast("Не удалось загрузить данные из облака — показаны локальные");
+  }
+}
+
+function offerMigration() {
+  openModal(`<div class="modal-icon">☁</div><h2>Перенести слова в облако?</h2><p>На этом телефоне есть ${words.length} слов(а). Перенести их в твой аккаунт, чтобы они были доступны с других устройств?</p><button class="big-add" id="confirm-migrate">Перенести</button><button class="modal-cancel" id="modal-cancel">Не сейчас</button>`);
+  document.getElementById("modal-cancel").onclick = closeModal;
+  document.getElementById("confirm-migrate").onclick = async () => {
+    closeModal();
+    toast("Переносим данные...");
+    await pushWordsToCloud();
+    await pushStatsToCloud();
+    toast("Слова перенесены в облако");
+  };
+}
+
+// Перерисовывает экраны, у которых уже есть готовая функция рендера —
+// безопасно вызывать в любой момент, даже если экран сейчас не открыт.
+function refreshVisibleScreens() {
+  try { renderLibrary(); } catch {}
+  try { renderProgress(); } catch {}
+  try { renderPacks(); } catch {}
+}
+
 function dayKey(d = new Date()) {
   return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
 }
@@ -176,6 +317,7 @@ function recordAnswer(correct) {
   const day = stats[k] || (stats[k] = { correct: 0, wrong: 0 });
   correct ? day.correct++ : day.wrong++;
   writeJSON(STATS, stats);
+  queueCloudSync("stats");
 }
 // Серия дней подряд, в которые был хотя бы один ответ.
 function plural(n, one, few, many) {
@@ -223,7 +365,7 @@ let cardsScope = "all"; // "all" | "favorites" — что показываем �
 let testWords = [];
 let testIndex = 0;
 
-function save() { writeJSON(KEY, words); }
+function save() { writeJSON(KEY, words); queueCloudSync("words"); }
 function id() { return "w" + Date.now() + Math.random().toString(16).slice(2); }
 function mastered(w) { return w.level >= 5; }
 function due(w) { return w.nextReview <= Date.now(); }
@@ -1268,6 +1410,7 @@ document.getElementById("wipe-btn").onclick = () => {
     stats = {};
     save();
     writeJSON(STATS, stats);
+    queueCloudSync("stats");
     closeModal();
     toast("Все данные удалены");
     screen("screen-home");
